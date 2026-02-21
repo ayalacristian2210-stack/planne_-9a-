@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planner 9-A Final</title>
+    <style>
+        :root { 
+            --bg: #0f172a; --sidebar: #020617; --card: #1e293b; --text: #f8fafc; --accent: #3b82f6; --danger: #ef4444; 
+        }
+        .light-mode {
+            --bg: #f1f5f9; --sidebar: #ffffff; --card: #ffffff; --text: #1e293b; --accent: #2563eb;
+        }
+        
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); color: var(--text); overflow: hidden; transition: 0.3s; }
+        .hidden { display: none !important; }
+        
+        input, select, button { padding: 8px; border-radius: 6px; border: 1px solid #334155; margin: 4px 0; font-size: 13px; background: var(--card); color: var(--text); }
+        button { background: var(--accent); color: white; cursor: pointer; border: none; }
+        .btn-del { background: var(--danger); border-radius: 4px; display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; }
+
+        header { height: 50px; display: flex; justify-content: space-between; align-items: center; background: var(--sidebar); padding: 0 20px; border-bottom: 1px solid #334155; }
+        .main-wrapper { display: flex; height: calc(100vh - 50px); }
+
+        .sidebar { width: 380px; background: var(--sidebar); padding: 15px; overflow-y: auto; border-right: 1px solid #334155; }
+        table { width: 100%; border-collapse: collapse; font-size: 10px; margin-bottom: 15px; background: var(--bg); }
+        th, td { border: 1px solid #334155; padding: 5px; text-align: center; }
+
+        .content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .notes-area { height: 45%; padding: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; border-bottom: 2px solid #334155; overflow-y: auto; }
+        .historial-box { background: var(--sidebar); border-radius: 10px; padding: 15px; border: 1px solid #334155; }
+        
+        .nota-card { background: var(--bg); padding: 10px; margin-bottom: 8px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--accent); }
+
+        .kanban { height: 55%; display: flex; gap: 12px; padding: 15px; overflow-x: auto; background: var(--bg); }
+        .kanban-col { background: var(--sidebar); flex: 1; min-width: 220px; border-radius: 10px; padding: 10px; display: flex; flex-direction: column; border: 1px solid #334155; }
+        .task-list { flex: 1; overflow-y: auto; }
+        .task-card { background: var(--card); padding: 10px; border-radius: 8px; margin-bottom: 8px; border-left: 4px solid var(--accent); border: 1px solid #334155; }
+    </style>
+</head>
+<body>
+
+    <div id="login" style="height:100vh; display:flex; justify-content:center; align-items:center;">
+        <div style="background:var(--sidebar); padding:30px; border-radius:15px; width:280px; text-align:center; border: 1px solid #334155;">
+            <h2>Planner 9-A</h2>
+            <input id="user" placeholder="Usuario" style="width:90%">
+            <input id="pass" type="password" placeholder="Contraseña" style="width:90%">
+            <button onclick="login()" style="width:95%; margin-top:10px;">Entrar</button>
+        </div>
+    </div>
+
+    <div id="panel" class="hidden">
+        <header>
+            <h4 style="margin:0;">📚 Sistema Académico 9-A</h4>
+            <div style="display:flex; gap:10px;">
+                <button onclick="toggleTheme()">☀️/🌙 Modo</button>
+                <button onclick="location.reload()" class="btn-del" style="width:auto; padding: 0 10px;">Salir</button>
+            </div>
+        </header>
+
+        <div class="main-wrapper">
+            <div class="sidebar">
+                <h4>Horario Oficial</h4>
+                <table>
+                    <tr><th>Hora</th><th>L</th><th>M</th><th>M</th><th>J</th><th>V</th></tr>
+                    <tr><td>06:00</td><td>MAT</td><td>SOC</td><td>REL</td><td>LEN</td><td>FÍS</td></tr>
+                    <tr><td>06:55</td><td>ÉTI</td><td>SOC</td><td>LEN</td><td>LEN</td><td>FÍS</td></tr>
+                    <tr><td>07:50</td><td>CÁT</td><td>LEN</td><td>NAT</td><td>MAT</td><td>TEC</td></tr>
+                    <tr style="background:#334155; color:#94a3b8"><td colspan="6">DESCANSO</td></tr>
+                    <tr><td>09:15</td><td>ING</td><td>LEN</td><td>NAT</td><td>MAT</td><td>TEC</td></tr>
+                    <tr><td>10:10</td><td>SOC</td><td>ING</td><td>MAT</td><td>NAT</td><td>ART</td></tr>
+                    <tr><td>11:05</td><td>SOC</td><td>ING</td><td>MAT</td><td>NAT</td><td>ART</td></tr>
+                </table>
+
+                <hr style="border-color:#334155">
+                <h4>Añadir Datos</h4>
+                <div style="display:flex; gap:5px;">
+                    <input id="n-val" type="number" step="0.1" placeholder="Nota" style="width:70px">
+                    <select id="n-tipo" style="flex:1">
+                        <option value="act">Actividades (40%)</option>
+                        <option value="exa">Exámenes (30%)</option>
+                        <option value="tri">Trimestral (20%)</option>
+                        <option value="aut">Auto (5%)</option>
+                        <option value="het">Het (5%)</option>
+                    </select>
+                </div>
+                <select id="n-mat" style="width:100%" onchange="render()"></select>
+                <button onclick="addNota()" style="width:100%">+ Guardar Nota</button>
+
+                <hr style="border-color:#334155">
+                <h4>Nueva Tarea</h4>
+                <input id="t-desc" placeholder="¿Qué hay que hacer?" style="width:100%; box-sizing:border-box;">
+                <select id="t-imp" style="width:100%">
+                    <option value="⚡">⚡ Normal</option>
+                    <option value="🔥">🔥 Muy Importante</option>
+                    <option value="☕">☕ Relajado</option>
+                </select>
+                <input id="t-fecha" type="date" style="width:100%; box-sizing:border-box;">
+                <button onclick="addTarea()" style="width:100%">Crear Tarea</button>
+            </div>
+
+            <div class="content">
+                <div class="notes-area">
+                    <div class="historial-box">
+                        <h4 style="margin-top:0">Notas de la Materia</h4>
+                        <div id="lista-notas"></div>
+                    </div>
+                    <div class="historial-box">
+                        <h4 style="margin-top:0">Definitivas y Metas</h4>
+                        <div id="resumen-def"></div>
+                    </div>
+                </div>
+
+                <div class="kanban">
+                    <div class="kanban-col"><h5>Sin Hacer 📝</h5><div id="col-todo" class="task-list"></div></div>
+                    <div class="kanban-col"><h5>En Proceso ⏳</h5><div id="col-doing" class="task-list"></div></div>
+                    <div class="kanban-col"><h5>Terminado ✅</h5><div id="col-done" class="task-list"></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const MATS = ["MATEMÁTICAS", "CIENCIAS SOC", "LENGUA CAS", "INGLÉS", "CIENCIAS NAT", "TECNOLOGÍA", "ARTÍSTICA", "ÉTICA", "RELIGIÓN"];
+        const PESOS = { act: 0.4, exa: 0.3, tri: 0.2, aut: 0.05, het: 0.05 };
+
+        let notas = JSON.parse(localStorage.getItem("notas_9a")) || [];
+        let tareas = JSON.parse(localStorage.getItem("tareas_9a")) || [];
+
+        function login() {
+            document.getElementById("login").classList.add("hidden");
+            document.getElementById("panel").classList.remove("hidden");
+            init();
+        }
+
+        function toggleTheme() { document.body.classList.toggle("light-mode"); }
+
+        function init() {
+            const sel = document.getElementById("n-mat");
+            MATS.forEach(m => { sel.innerHTML += `<option value="${m}">${m}</option>`; });
+            render();
+        }
+
+        function addNota() {
+            const v = parseFloat(document.getElementById("n-val").value);
+            const t = document.getElementById("n-tipo").value;
+            const m = document.getElementById("n-mat").value;
+            if(isNaN(v)) return;
+            notas.push({ id: Date.now(), m, v, t });
+            save(); render();
+            document.getElementById("n-val").value = "";
+        }
+
+        function borrarNota(id) {
+            notas = notas.filter(n => n.id !== id);
+            save(); render();
+        }
+
+        function addTarea() {
+            const d = document.getElementById("t-desc").value;
+            const f = document.getElementById("t-fecha").value;
+            const i = document.getElementById("t-imp").value;
+            if(!d) return;
+            tareas.push({ id: Date.now(), d, f, imp: i, status: 'todo' });
+            save(); render();
+            document.getElementById("t-desc").value = "";
+        }
+
+        function move(id, status) {
+            const t = tareas.find(x => x.id === id);
+            t.status = status;
+            save(); render();
+        }
+
+        function borrarTarea(id) {
+            tareas = tareas.filter(x => x.id !== id);
+            save(); render();
+        }
+
+        function render() {
+            const materiaSeleccionada = document.getElementById("n-mat").value;
+
+            // Notas Filtradas
+            const lNotas = document.getElementById("lista-notas");
+            lNotas.innerHTML = "";
+            notas.filter(n => n.m === materiaSeleccionada).slice().reverse().forEach(n => {
+                lNotas.innerHTML += `<div class="nota-card"><span><b>${n.v}</b> (${n.t})</span><button onclick="borrarNota(${n.id})" class="btn-del">🗑️</button></div>`;
+            });
+
+            // Metas
+            const resumen = document.getElementById("resumen-def");
+            resumen.innerHTML = "";
+            MATS.forEach(m => {
+                let acu = 0, peso = 0;
+                const mNotas = notas.filter(n => n.m === m);
+                Object.keys(PESOS).forEach(tipo => {
+                    const nT = mNotas.filter(n => n.t === tipo);
+                    if(nT.length > 0) { acu += (nT.reduce((a,b)=>a+b.v,0)/nT.length) * PESOS[tipo]; peso += PESOS[tipo]; }
+                });
+                if(peso > 0) {
+                    let meta = peso < 1 ? (3.0 - acu) / (1 - peso) : 0;
+                    resumen.innerHTML += `<div style="padding:8px; background:var(--bg); border-radius:6px; margin-bottom:5px; border-bottom: 2px solid ${acu >= 3 ? '#10b981':'#ef4444'}"><small>${m}</small><br><b>${acu.toFixed(2)}</b>${peso < 1 ? `<span style="font-size:10px; color:#fbbf24"> | Meta: ${meta.toFixed(2)}</span>` : ''}</div>`;
+                }
+            });
+
+            // Kanban
+            ["todo", "doing", "done"].forEach(s => {
+                const col = document.getElementById(`col-${s}`);
+                col.innerHTML = "";
+                tareas.filter(t => t.status === s).forEach(t => {
+                    col.innerHTML += `<div class="task-card"><b>${t.imp} ${t.d}</b><small>📅 ${t.f}</small><div style="margin-top:8px; display:flex; gap:3px">${s!=='todo'?`<button onclick="move(${t.id},'todo')">⬅️</button>`:''}${s!=='doing'?`<button onclick="move(${t.id},'doing')">⏳</button>`:''}${s!=='done'?`<button onclick="move(${t.id},'done')">✅</button>`:''}<button onclick="borrarTarea(${t.id})" class="btn-del" style="width:25px; height:25px;">🗑️</button></div></div>`;
+                });
+            });
+        }
+
+        function save() {
+            localStorage.setItem("notas_9a", JSON.stringify(notas));
+            localStorage.setItem("tareas_9a", JSON.stringify(tareas));
+        }
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planner 9-A Final</title>
+    <style>
+        :root { --bg: #0f172a; --sidebar: #020617; --card: #1e293b; --text: #f8fafc; --accent: #3b82f6; --danger: #ef4444; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); color: var(--text); overflow: hidden; }
+        .hidden { display: none !important; }
+        
+        input, select, button { padding: 8px; border-radius: 6px; border: none; margin: 4px 0; font-size: 13px; }
+        button { background: var(--accent); color: white; cursor: pointer; transition: 0.2s; }
+        button:hover { opacity: 0.8; }
+        .btn-del { background: var(--danger); border-radius: 4px; display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; }
+
+        header { height: 50px; display: flex; justify-content: space-between; align-items: center; background: var(--sidebar); padding: 0 20px; border-bottom: 1px solid #334155; }
+        .main-wrapper { display: flex; height: calc(100vh - 50px); }
+
+        .sidebar { width: 380px; background: var(--sidebar); padding: 15px; overflow-y: auto; border-right: 1px solid #334155; }
+        table { width: 100%; border-collapse: collapse; font-size: 10px; margin-bottom: 15px; background: #0f172a; }
+        th, td { border: 1px solid #334155; padding: 5px; text-align: center; }
+        th { background: #1e293b; }
+
+        .content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        
+        .notes-area { height: 45%; padding: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; border-bottom: 2px solid #334155; overflow-y: auto; }
+        .historial-box { background: var(--sidebar); border-radius: 10px; padding: 15px; }
+        .nota-card { 
+            background: #0f172a; 
+            padding: 10px 15px; 
+            margin-bottom: 8px; 
+            border-radius: 8px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            border-left: 4px solid var(--accent);
+        }
+
+        .kanban { height: 55%; display: flex; gap: 12px; padding: 15px; overflow-x: auto; background: #0b1120; }
+        .kanban-col { background: var(--sidebar); flex: 1; min-width: 220px; border-radius: 10px; padding: 10px; display: flex; flex-direction: column; }
+        .task-list { flex: 1; overflow-y: auto; }
+        .task-card { background: var(--card); padding: 10px; border-radius: 8px; margin-bottom: 8px; border-left: 4px solid var(--accent); position: relative; }
+    </style>
+</head>
+<body>
+
+    <div id="login" style="height:100vh; display:flex; justify-content:center; align-items:center;">
+        <div style="background:var(--sidebar); padding:30px; border-radius:15px; width:280px; text-align:center; border: 1px solid #334155;">
+            <h2>Planner 9-A</h2>
+            <input id="user" placeholder="Usuario" style="width:90%">
+            <input id="pass" type="password" placeholder="Contraseña" style="width:90%">
+            <button onclick="login()" style="width:95%; margin-top:10px;">Entrar</button>
+        </div>
+    </div>
+
+    <div id="panel" class="hidden">
+        <header>
+            <h4 style="margin:0;">📚 Sistema Académico 9-A</h4>
+            <button onclick="location.reload()" class="btn-del" style="width:auto; padding: 0 10px;">Salir</button>
+        </header>
+
+        <div class="main-wrapper">
+            <div class="sidebar">
+                <h4>Horario Oficial</h4>
+                <table>
+                    <tr><th>Hora</th><th>L</th><th>M</th><th>M</th><th>J</th><th>V</th></tr>
+                    <tr><td>06:00</td><td>MAT</td><td>SOC</td><td>REL</td><td>LEN</td><td>FÍS</td></tr>
+                    <tr><td>06:55</td><td>ÉTI</td><td>SOC</td><td>LEN</td><td>LEN</td><td>FÍS</td></tr>
+                    <tr><td>07:50</td><td>CÁT</td><td>LEN</td><td>NAT</td><td>MAT</td><td>TEC</td></tr>
+                    <tr style="background:#334155; color:#94a3b8"><td colspan="6">DESCANSO</td></tr>
+                    <tr><td>09:15</td><td>ING</td><td>LEN</td><td>NAT</td><td>MAT</td><td>TEC</td></tr>
+                    <tr><td>10:10</td><td>SOC</td><td>ING</td><td>MAT</td><td>NAT</td><td>ART</td></tr>
+                    <tr><td>11:05</td><td>SOC</td><td>ING</td><td>MAT</td><td>NAT</td><td>ART</td></tr>
+                </table>
+
+                <hr style="border-color:#334155">
+                <h4>Añadir Datos</h4>
+                <div style="display:flex; gap:5px;">
+                    <input id="n-val" type="number" step="0.1" placeholder="Nota" style="width:70px">
+                    <select id="n-tipo" style="flex:1">
+                        <option value="act">Actividades (40%)</option>
+                        <option value="exa">Exámenes (30%)</option>
+                        <option value="tri">Trimestral (20%)</option>
+                        <option value="aut">Auto (5%)</option>
+                        <option value="het">Het (5%)</option>
+                    </select>
+                </div>
+                <select id="n-mat" style="width:100%" onchange="render()"></select>
+                <button onclick="addNota()" style="width:100%">+ Guardar Nota</button>
+
+                <hr style="border-color:#334155">
+                <input id="t-desc" placeholder="Nueva Tarea..." style="width:100%; box-sizing:border-box;">
+                <input id="t-fecha" type="date" style="width:100%; box-sizing:border-box;">
+                <button onclick="addTarea()" style="width:100%">Crear Tarea</button>
+            </div>
+
+            <div class="content">
+                <div class="notes-area">
+                    <div class="historial-box">
+                        <h4 style="margin-top:0">Notas de la Materia Seleccionada</h4>
+                        <div id="lista-notas"></div>
+                    </div>
+                    <div class="historial-box">
+                        <h4 style="margin-top:0">Definitivas y Metas</h4>
+                        <div id="resumen-def"></div>
+                    </div>
+                </div>
+
+                <div class="kanban">
+                    <div class="kanban-col">
+                        <h5 style="margin-top:0">Sin Hacer 📝</h5>
+                        <div id="col-todo" class="task-list"></div>
+                    </div>
+                    <div class="kanban-col">
+                        <h5 style="margin-top:0">En Proceso ⏳</h5>
+                        <div id="col-doing" class="task-list"></div>
+                    </div>
+                    <div class="kanban-col">
+                        <h5 style="margin-top:0">Terminado ✅</h5>
+                        <div id="col-done" class="task-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const MATS = ["MATEMÁTICAS", "CIENCIAS SOC", "LENGUA CAS", "INGLÉS", "CIENCIAS NAT", "TECNOLOGÍA", "ARTÍSTICA", "ÉTICA", "RELIGIÓN"];
+        const PESOS = { act: 0.4, exa: 0.3, tri: 0.2, aut: 0.05, het: 0.05 };
+
+        let notas = JSON.parse(localStorage.getItem("notas_9a")) || [];
+        let tareas = JSON.parse(localStorage.getItem("tareas_9a")) || [];
+
+        function login() {
+            document.getElementById("login").classList.add("hidden");
+            document.getElementById("panel").classList.remove("hidden");
+            init();
+        }
+
+        function init() {
+            const sel = document.getElementById("n-mat");
+            MATS.forEach(m => { sel.innerHTML += `<option value="${m}">${m}</option>`; });
+            render();
+        }
+
+        function addNota() {
+            const v = parseFloat(document.getElementById("n-val").value);
+            const t = document.getElementById("n-tipo").value;
+            const m = document.getElementById("n-mat").value;
+            if(isNaN(v)) return;
+            notas.push({ id: Date.now(), m, v, t });
+            save(); render();
+            document.getElementById("n-val").value = "";
+        }
+
+        function borrarNota(id) {
+            notas = notas.filter(n => n.id !== id);
+            save(); render();
+        }
+
+        function addTarea() {
+            const d = document.getElementById("t-desc").value;
+            const f = document.getElementById("t-fecha").value;
+            if(!d) return;
+            tareas.push({ id: Date.now(), d, f, status: 'todo' });
+            save(); render();
+            document.getElementById("t-desc").value = "";
+        }
+
+        function move(id, status) {
+            const t = tareas.find(x => x.id === id);
+            t.status = status;
+            save(); render();
+        }
+
+        function borrarTarea(id) {
+            tareas = tareas.filter(x => x.id !== id);
+            save(); render();
+        }
+
+        function render() {
+            const materiaSeleccionada = document.getElementById("n-mat").value;
+
+            // Render Notas FILTRADAS por la materia seleccionada
+            const lNotas = document.getElementById("lista-notas");
+            lNotas.innerHTML = "";
+            const notasFiltradas = notas.filter(n => n.m === materiaSeleccionada);
+            
+            if(notasFiltradas.length === 0) {
+                lNotas.innerHTML = `<p style="font-size:12px; opacity:0.5">No hay notas registradas para ${materiaSeleccionada}</p>`;
+            }
+
+            notasFiltradas.slice().reverse().forEach(n => {
+                lNotas.innerHTML += `
+                    <div class="nota-card">
+                        <span><b>${n.v}</b> (${n.t})</span>
+                        <button onclick="borrarNota(${n.id})" class="btn-del">🗑️</button>
+                    </div>`;
+            });
+
+            // Resumen de Metas (Sigue mostrando todas las que tengan notas)
+            const resumen = document.getElementById("resumen-def");
+            resumen.innerHTML = "";
+            MATS.forEach(m => {
+                let acu = 0, peso = 0;
+                const mNotas = notas.filter(n => n.m === m);
+                Object.keys(PESOS).forEach(tipo => {
+                    const nT = mNotas.filter(n => n.t === tipo);
+                    if(nT.length > 0) { acu += (nT.reduce((a,b)=>a+b.v,0)/nT.length) * PESOS[tipo]; peso += PESOS[tipo]; }
+                });
+                if(peso > 0) {
+                    let meta = peso < 1 ? (3.0 - acu) / (1 - peso) : 0;
+                    resumen.innerHTML += `
+                        <div style="padding:8px; background:#0f172a; border-radius:6px; margin-bottom:5px; border-bottom: 2px solid ${acu >= 3 ? '#10b981':'#ef4444'}">
+                            <small>${m}</small><br>
+                            <b>${acu.toFixed(2)}</b> 
+                            ${peso < 1 ? `<span style="font-size:10px; color:#fbbf24"> | Meta: ${meta.toFixed(2)}</span>` : ''}
+                        </div>`;
+                }
+            });
+
+            // Kanban
+            ["todo", "doing", "done"].forEach(s => {
+                const col = document.getElementById(`col-${s}`);
+                col.innerHTML = "";
+                tareas.filter(t => t.status === s).forEach(t => {
+                    col.innerHTML += `
+                        <div class="task-card">
+                            <b>${t.d}</b><small>📅 ${t.f}</small>
+                            <div style="margin-top:8px; display:flex; gap:3px">
+                                ${s!=='todo'?`<button onclick="move(${t.id},'todo')">⬅️</button>`:''}
+                                ${s!=='doing'?`<button onclick="move(${t.id},'doing')">⏳</button>`:''}
+                                ${s!=='done'?`<button onclick="move(${t.id},'done')">✅</button>`:''}
+                                <button onclick="borrarTarea(${t.id})" class="btn-del" style="width:25px; height:25px;">🗑️</button>
+                            </div>
+                        </div>`;
+                });
+            });
+        }
+
+        function save() {
+            localStorage.setItem("notas_9a", JSON.stringify(notas));
+            localStorage.setItem("tareas_9a", JSON.stringify(tareas));
+        }
+    </script>
+</body>
+</html>
