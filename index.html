@@ -3,14 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Planner 9-A Pro Responsive</title>
+    <title>Planner 9-A - Datos Guardados</title>
     <style>
-        :root { 
-            --bg: #0f172a; --sidebar: #020617; --card: #1e293b; --text: #f8fafc; --accent: #3b82f6; --danger: #ef4444; 
-        }
-        .light-mode {
-            --bg: #f1f5f9; --sidebar: #ffffff; --card: #ffffff; --text: #1e293b; --accent: #2563eb;
-        }
+        :root { --bg: #0f172a; --sidebar: #020617; --card: #1e293b; --text: #f8fafc; --accent: #3b82f6; --danger: #ef4444; }
+        .light-mode { --bg: #f1f5f9; --sidebar: #ffffff; --card: #ffffff; --text: #1e293b; --accent: #2563eb; }
         
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); color: var(--text); transition: 0.3s; min-height: 100vh; }
         .hidden { display: none !important; }
@@ -20,58 +16,46 @@
         .btn-del { background: var(--danger); width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; }
 
         header { height: 60px; display: flex; justify-content: space-between; align-items: center; background: var(--sidebar); padding: 0 15px; border-bottom: 1px solid #334155; position: sticky; top: 0; z-index: 100; }
-
-        /* DISEÑO RESPONSIVE PRINCIPAL */
-        .main-wrapper { 
-            display: flex; 
-            flex-direction: row; 
-            min-height: calc(100vh - 60px); 
-        }
+        .main-wrapper { display: flex; flex-direction: row; min-height: calc(100vh - 60px); }
 
         @media (max-width: 900px) {
             .main-wrapper { flex-direction: column; }
-            .sidebar { width: 100% !important; border-right: none !important; border-bottom: 1px solid #334155; }
+            .sidebar { width: 100% !important; border-right: none !important; }
             .notes-area { grid-template-columns: 1fr !important; }
         }
 
         .sidebar { width: 350px; background: var(--sidebar); padding: 20px; border-right: 1px solid #334155; box-sizing: border-box; }
-        
         .content { flex: 1; display: flex; flex-direction: column; }
-
-        /* TABLA DE HORARIO RESPONSIVE */
         .table-container { overflow-x: auto; margin-bottom: 20px; }
         table { width: 100%; border-collapse: collapse; font-size: 11px; background: var(--bg); min-width: 400px; }
         th, td { border: 1px solid #334155; padding: 8px; text-align: center; }
 
-        /* ÁREA DE NOTAS */
         .notes-area { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 15px; border-bottom: 1px solid #334155; }
         .historial-box { background: var(--sidebar); border-radius: 12px; padding: 15px; border: 1px solid #334155; }
-        .nota-card { background: var(--bg); padding: 12px; margin-bottom: 8px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid var(--accent); }
+        .nota-card { background: var(--bg); padding: 10px; margin-bottom: 8px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid var(--accent); }
 
-        /* KANBAN RESPONSIVE */
         .kanban { display: flex; gap: 15px; padding: 15px; overflow-x: auto; flex: 1; }
         .kanban-col { background: var(--sidebar); min-width: 280px; flex: 1; border-radius: 12px; padding: 15px; border: 1px solid #334155; display: flex; flex-direction: column; }
-        .task-list { margin-top: 10px; }
         .task-card { background: var(--card); padding: 15px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #334155; }
     </style>
 </head>
 <body>
 
-    <div id="login" style="height:100vh; display:flex; justify-content:center; align-items:center; padding: 20px; box-sizing: border-box;">
+    <div id="login" style="height:100vh; display:flex; justify-content:center; align-items:center; padding: 20px;">
         <div style="background:var(--sidebar); padding:30px; border-radius:15px; width:100%; max-width:350px; text-align:center; border: 1px solid #334155;">
             <h2>Planner 9-A</h2>
-            <input id="user" placeholder="Usuario" style="width:100%; box-sizing: border-box;">
-            <input id="pass" type="password" placeholder="Contraseña" style="width:100%; box-sizing: border-box;">
+            <input id="user" placeholder="Usuario (admin)" style="width:100%;">
+            <input id="pass" type="password" placeholder="Contraseña (1234)" style="width:100%;">
             <button onclick="login()" style="width:100%; margin-top:10px;">Entrar</button>
         </div>
     </div>
 
     <div id="panel" class="hidden">
         <header>
-            <h4 style="margin:0;">📚 Planner 9-A</h4>
+            <h4 style="margin:0;">📚 Planner 9-A (Autoguardado Activo)</h4>
             <div style="display:flex; gap:10px;">
                 <button onclick="toggleTheme()">☀️/🌙</button>
-                <button onclick="location.reload()" class="btn-del" style="width:auto; padding: 0 10px;">Salir</button>
+                <button onclick="logout()" class="btn-del" style="width:auto; padding: 0 10px;">Salir</button>
             </div>
         </header>
 
@@ -93,7 +77,7 @@
 
                 <hr style="border-color:#334155">
                 <h3>Añadir Nota</h3>
-                <input id="n-val" type="number" step="0.1" placeholder="Valor Nota" style="width:100%; box-sizing: border-box;">
+                <input id="n-val" type="number" step="0.1" placeholder="Nota (0.0 - 5.0)" style="width:100%;">
                 <select id="n-tipo" style="width:100%">
                     <option value="act">Actividades (40%)</option>
                     <option value="exa">Exámenes (30%)</option>
@@ -102,45 +86,36 @@
                     <option value="het">Het (5%)</option>
                 </select>
                 <select id="n-mat" style="width:100%" onchange="render()"></select>
-                <button onclick="addNota()" style="width:100%">+ Guardar</button>
+                <button onclick="addNota()" style="width:100%">+ Guardar en Memoria</button>
 
                 <hr style="border-color:#334155">
                 <h3>Nueva Tarea</h3>
-                <input id="t-desc" placeholder="Descripción" style="width:100%; box-sizing: border-box;">
+                <input id="t-desc" placeholder="¿Qué tarea es?" style="width:100%;">
                 <select id="t-imp" style="width:100%">
                     <option value="⚡">⚡ Normal</option>
                     <option value="🔥">🔥 Importante</option>
                     <option value="☕">☕ Suave</option>
                 </select>
-                <input id="t-fecha" type="date" style="width:100%; box-sizing: border-box;">
-                <button onclick="addTarea()" style="width:100%">+ Crear Tarea</button>
+                <input id="t-fecha" type="date" style="width:100%;">
+                <button onclick="addTarea()" style="width:100%">+ Guardar Tarea</button>
             </div>
 
             <div class="content">
                 <div class="notes-area">
                     <div class="historial-box">
-                        <h4 style="margin:0 0 10px 0">Notas Filtradas</h4>
+                        <h4 id="filtro-titulo">Notas de la Materia</h4>
                         <div id="lista-notas"></div>
                     </div>
                     <div class="historial-box">
-                        <h4 style="margin:0 0 10px 0">Definitivas</h4>
+                        <h4>Definitivas Reales</h4>
                         <div id="resumen-def"></div>
                     </div>
                 </div>
 
                 <div class="kanban">
-                    <div class="kanban-col">
-                        <h4>Sin Hacer 📝</h4>
-                        <div id="col-todo" class="task-list"></div>
-                    </div>
-                    <div class="kanban-col">
-                        <h4>En Proceso ⏳</h4>
-                        <div id="col-doing" class="task-list"></div>
-                    </div>
-                    <div class="kanban-col">
-                        <h4>Terminado ✅</h4>
-                        <div id="col-done" class="task-list"></div>
-                    </div>
+                    <div class="kanban-col"><h4>Sin Hacer 📝</h4><div id="col-todo" class="task-list"></div></div>
+                    <div class="kanban-col"><h4>En Proceso ⏳</h4><div id="col-doing" class="task-list"></div></div>
+                    <div class="kanban-col"><h4>Terminado ✅</h4><div id="col-done" class="task-list"></div></div>
                 </div>
             </div>
         </div>
@@ -150,9 +125,9 @@
         const MATS = ["MATEMÁTICAS", "CIENCIAS SOC", "LENGUA CAS", "INGLÉS", "CIENCIAS NAT", "TECNOLOGÍA", "ARTÍSTICA", "ÉTICA", "RELIGIÓN"];
         const PESOS = { act: 0.4, exa: 0.3, tri: 0.2, aut: 0.05, het: 0.05 };
 
-        // Carga de datos respectivos
-        let notas = JSON.parse(localStorage.getItem("db_notas_9a")) || [];
-        let tareas = JSON.parse(localStorage.getItem("db_tareas_9a")) || [];
+        // ESTO ASEGURA QUE LOS DATOS SE CARGUEN AL ABRIR
+        let notas = JSON.parse(localStorage.getItem("planner_9a_notas")) || [];
+        let tareas = JSON.parse(localStorage.getItem("planner_9a_tareas")) || [];
 
         function login() {
             document.getElementById("login").classList.add("hidden");
@@ -169,19 +144,28 @@
             render();
         }
 
+        // FUNCION PARA GUARDAR (PERSISTENCIA TOTAL)
+        function save() {
+            localStorage.setItem("planner_9a_notas", JSON.stringify(notas));
+            localStorage.setItem("planner_9a_tareas", JSON.stringify(tareas));
+            console.log("Datos guardados en localStorage");
+        }
+
         function addNota() {
             const v = parseFloat(document.getElementById("n-val").value);
             const t = document.getElementById("n-tipo").value;
             const m = document.getElementById("n-mat").value;
             if(isNaN(v)) return;
             notas.push({ id: Date.now(), m, v, t });
-            save(); render();
+            save(); // Guarda inmediatamente
+            render();
             document.getElementById("n-val").value = "";
         }
 
         function borrarNota(id) {
             notas = notas.filter(n => n.id !== id);
-            save(); render();
+            save(); // Actualiza el guardado
+            render();
         }
 
         function addTarea() {
@@ -190,36 +174,36 @@
             const i = document.getElementById("t-imp").value;
             if(!d) return;
             tareas.push({ id: Date.now(), d, f, imp: i, status: 'todo' });
-            save(); render();
+            save(); // Guarda inmediatamente
+            render();
             document.getElementById("t-desc").value = "";
         }
 
         function move(id, status) {
             const t = tareas.find(x => x.id === id);
             t.status = status;
-            save(); render();
+            save();
+            render();
         }
 
         function borrarTarea(id) {
             tareas = tareas.filter(x => x.id !== id);
-            save(); render();
+            save();
+            render();
         }
 
         function render() {
             const matSel = document.getElementById("n-mat").value;
+            document.getElementById("filtro-titulo").innerText = "Notas de: " + matSel;
 
-            // Notas filtradas
+            // Historial de notas filtrado
             const lNotas = document.getElementById("lista-notas");
             lNotas.innerHTML = "";
             notas.filter(n => n.m === matSel).reverse().forEach(n => {
-                lNotas.innerHTML += `
-                    <div class="nota-card">
-                        <span><b>${n.v}</b> (${n.t})</span>
-                        <button onclick="borrarNota(${n.id})" class="btn-del">🗑️</button>
-                    </div>`;
+                lNotas.innerHTML += `<div class="nota-card"><span><b>${n.v}</b> (${n.t})</span><button onclick="borrarNota(${n.id})" class="btn-del">🗑️</button></div>`;
             });
 
-            // Definitivas
+            // Resumen de definitivas
             const res = document.getElementById("resumen-def");
             res.innerHTML = "";
             MATS.forEach(m => {
@@ -229,12 +213,7 @@
                     const nT = mNotas.filter(n => n.t === tipo);
                     if(nT.length > 0) { acu += (nT.reduce((a,b)=>a+b.v,0)/nT.length) * PESOS[tipo]; peso += PESOS[tipo]; }
                 });
-                if(peso > 0) {
-                    res.innerHTML += `
-                        <div style="font-size:12px; margin-bottom:8px; border-bottom:1px solid #334155">
-                            <b>${m}: ${acu.toFixed(2)}</b>
-                        </div>`;
-                }
+                if(peso > 0) res.innerHTML += `<div style="font-size:12px; margin-bottom:5px;"><b>${m}:</b> ${acu.toFixed(2)}</div>`;
             });
 
             // Kanban
@@ -242,25 +221,15 @@
                 const col = document.getElementById(`col-${s}`);
                 col.innerHTML = "";
                 tareas.filter(t => t.status === s).forEach(t => {
-                    col.innerHTML += `
-                        <div class="task-card">
-                            <b>${t.imp} ${t.d}</b>
-                            <small>${t.f}</small>
-                            <div style="margin-top:10px; display:flex; gap:5px; flex-wrap:wrap;">
-                                <button onclick="move(${t.id},'todo')">⬅️</button>
-                                <button onclick="move(${t.id},'doing')">⏳</button>
-                                <button onclick="move(${t.id},'done')">✅</button>
-                                <button onclick="borrarTarea(${t.id})" class="btn-del">🗑️</button>
-                            </div>
-                        </div>`;
+                    col.innerHTML += `<div class="task-card"><b>${t.imp} ${t.d}</b><br><small>${t.f}</small><div style="margin-top:10px; display:flex; gap:3px; flex-wrap:wrap"><button onclick="move(${t.id},'todo')">⬅️</button><button onclick="move(${t.id},'doing')">⏳</button><button onclick="move(${t.id},'done')">✅</button><button onclick="borrarTarea(${t.id})" class="btn-del">🗑️</button></div></div>`;
                 });
             });
         }
 
-        function save() {
-            // Guardado en sus respectivos espacios
-            localStorage.setItem("db_notas_9a", JSON.stringify(notas));
-            localStorage.setItem("db_tareas_9a", JSON.stringify(tareas));
+        function logout() {
+            if(confirm("¿Quieres salir? Los datos están seguros.")) {
+                location.reload();
+            }
         }
     </script>
 </body>
